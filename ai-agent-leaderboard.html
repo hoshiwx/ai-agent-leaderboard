@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 排行榜 2025-2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0d12;--surface:#13161f;--card-bg:#1a1e2b;
+  --text:#e4e6ee;--text-secondary:#9298aa;
+  --accent-1:#6366f1;--accent-2:#8b5cf6;--accent-3:#06b6d4;--accent-4:#10b981;
+  --gold:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --border:rgba(255,255,255,0.06);--radius:16px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(99,102,241,0.12),transparent),
+             radial-gradient(ellipse 60% 50% at 80% 80%,rgba(139,92,246,0.08),transparent);
+  pointer-events:none;z-index:0;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2a2f3d;border-radius:3px}
+
+/* Header */
+header{position:relative;z-index:1;text-align:center;padding:60px 20px 40px}
+header h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+header .subtitle{font-size:1.1rem;color:var(--text-secondary);max-width:640px;margin:0 auto}
+header .badge-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+header .badge-row span{font-size:0.8rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-secondary)}
+
+/* Controls */
+.controls{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:0 20px 20px;max-width:1200px;margin:0 auto}
+.search-box{flex:1;min-width:220px;max-width:400px;position:relative}
+.search-box input{width:100%;padding:12px 16px 12px 44px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.95rem;outline:none;transition:0.2s}
+.search-box input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+.search-box .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-secondary);pointer-events:none}
+.sort-btn{padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);cursor:pointer;font-size:0.9rem;transition:0.2s;user-select:none}
+.sort-btn:hover{background:#1e2232}
+.sort-btn.active{background:rgba(99,102,241,0.15);border-color:var(--accent-1);color:var(--accent-1)}
+
+/* Filter tags */
+.filters{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 20px 32px}
+.filter-tag{padding:10px 20px;border-radius:24px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);cursor:pointer;font-size:0.9rem;font-weight:500;transition:0.2s;user-select:none;white-space:nowrap}
+.filter-tag:hover{background:#1e2232}
+.filter-tag.active{background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.2));border-color:var(--accent-1);color:#fff}
+.filter-tag .count{font-size:0.75rem;opacity:0.6;margin-left:2px}
+
+/* Stats bar */
+.stats-bar{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:0 20px 40px}
+.stat-item{text-align:center;padding:16px 28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:100px}
+.stat-item .num{font-size:1.8rem;font-weight:700;color:var(--accent-1)}
+.stat-item .label{font-size:0.8rem;color:var(--text-secondary);margin-top:2px}
+
+/* Grid */
+.grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:0 20px 60px;max-width:1400px;margin:0 auto}
+
+/* Card */
+.card-wrapper{perspective:1000px;height:420px}
+.card-wrapper.hidden{display:none}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);cursor:pointer}
+.card.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.card-front{background:var(--card-bg);display:flex;flex-direction:column;padding:24px}
+.card-back{background:var(--card-bg);transform:rotateY(180deg);padding:24px;overflow-y:auto}
+.card-back::-webkit-scrollbar{width:3px}
+.card-back::-webkit-scrollbar-thumb{background:#2a2f3d;border-radius:2px}
+
+/* Front content */
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.card-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;flex-shrink:0}
+.card-rank{font-size:0.8rem;color:var(--text-secondary);background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:8px}
+.card-name{font-size:1.2rem;font-weight:700;margin-bottom:4px}
+.card-org{font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.card-tag{padding:4px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;background:rgba(255,255,255,0.05);color:var(--text-secondary)}
+.card-tag.cat-coding{background:rgba(99,102,241,0.15);color:#a5b4fc}
+.card-tag.cat-product{background:rgba(6,182,212,0.15);color:#67e8f9}
+.card-tag.cat-opensource{background:rgba(16,185,129,0.15);color:#6ee7b7}
+.card-tag.cat-china{background:rgba(236,72,153,0.15);color:#f9a8d4}
+
+.card-pros-cons{display:flex;gap:12px;margin-bottom:auto}
+.card-pros-cons>div{flex:1;font-size:0.78rem}
+.card-pros-cons .pros h4{color:var(--accent-4);margin-bottom:4px;font-size:0.75rem}
+.card-pros-cons .cons h4{color:var(--red);margin-bottom:4px;font-size:0.75rem}
+.card-pros-cons ul{list-style:none;color:var(--text-secondary);margin:0;padding:0}
+.card-pros-cons li{margin-bottom:3px;padding-left:12px}
+.card-pros-cons .pros li::before{content:'+';position:absolute;left:0;color:var(--accent-4)}
+.card-pros-cons .cons li::before{content:'-';position:absolute;left:0;color:var(--red)}
+
+.card-rating{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.card-score{font-size:1.6rem;font-weight:800;color:var(--gold)}
+.card-score-label{font-size:0.75rem;color:var(--text-secondary)}
+.card-stars{color:var(--gold);font-size:0.9rem;letter-spacing:2px}
+.card-hint{font-size:0.7rem;color:var(--text-secondary);margin-left:auto}
+
+/* Back content */
+.card-back h3{font-size:1rem;font-weight:700;margin-bottom:14px;color:var(--accent-1)}
+.back-section{margin-bottom:16px}
+.back-section h4{font-size:0.8rem;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.back-section h4 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot.green{background:var(--accent-4)}.dot.red{background:var(--red)}.dot.blue{background:var(--accent-3)}
+.back-section ul{list-style:none;font-size:0.8rem;color:var(--text-secondary);padding:0}
+.back-section li{margin-bottom:4px;padding-left:16px}
+.back-section li::before{content:'•';position:absolute;left:4px;color:var(--accent-1)}
+.back-verdict{margin-top:14px;padding:12px;background:rgba(99,102,241,0.08);border-radius:10px;font-size:0.8rem;color:var(--text-secondary);line-height:1.5}
+.back-verdict strong{color:var(--accent-3)}
+.card-flip-hint{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;color:var(--text-secondary);font-size:0.7rem;border-top:1px solid var(--border);margin-top:auto}
+.flip-indicator{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text-secondary);transition:0.2s}
+.card:hover .flip-indicator{background:rgba(255,255,255,0.08)}
+
+/* Top badges */
+.card-wrapper.top-1 .card-front{border-color:rgba(245,158,11,0.4);box-shadow:0 0 30px rgba(245,158,11,0.1)}
+.card-wrapper.top-2 .card-front{border-color:rgba(148,163,184,0.35);box-shadow:0 0 20px rgba(148,163,184,0.08)}
+.card-wrapper.top-3 .card-front{border-color:rgba(180,110,50,0.3);box-shadow:0 0 20px rgba(180,110,50,0.06)}
+.top-badge{position:absolute;top:0;right:0;width:60px;height:60px;overflow:hidden;z-index:2;pointer-events:none}
+.top-badge::before{content:'';position:absolute;top:0;right:0;border-style:solid;border-width:0 60px 60px 0;border-color:transparent var(--gold) transparent transparent}
+.top-badge span{position:absolute;top:8px;right:-2px;transform:rotate(45deg);font-size:0.6rem;font-weight:800;color:#000;z-index:1}
+.card-wrapper.top-2 .top-badge::before{border-color:transparent #94a3b8 transparent transparent}
+.card-wrapper.top-3 .top-badge::before{border-color:transparent #b46e32 transparent transparent}
+
+/* Animation */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.card-wrapper{animation:fadeInUp 0.5s ease both}
+.card-wrapper:nth-child(1){animation-delay:.05s}.card-wrapper:nth-child(2){animation-delay:.1s}
+.card-wrapper:nth-child(3){animation-delay:.15s}.card-wrapper:nth-child(4){animation-delay:.2s}
+.card-wrapper:nth-child(5){animation-delay:.25s}.card-wrapper:nth-child(6){animation-delay:.3s}
+.card-wrapper:nth-child(7){animation-delay:.35s}.card-wrapper:nth-child(8){animation-delay:.4s}
+.card-wrapper:nth-child(9){animation-delay:.45s}.card-wrapper:nth-child(10){animation-delay:.5s}
+.card-wrapper:nth-child(11){animation-delay:.55s}.card-wrapper:nth-child(12){animation-delay:.6s}
+.card-wrapper:nth-child(13){animation-delay:.62s}.card-wrapper:nth-child(14){animation-delay:.64s}
+
+/* Responsive */
+@media(max-width:768px){
+  header{padding:40px 16px 28px}
+  .grid{grid-template-columns:1fr;padding:0 12px 40px;gap:16px}
+  .card-wrapper{height:400px}
+  .controls{flex-direction:column;align-items:stretch;padding:0 12px 16px}
+  .search-box{max-width:none}
+  .filters{gap:6px;padding:0 12px 24px}
+  .filter-tag{padding:8px 14px;font-size:0.82rem}
+  .stats-bar{gap:10px;padding:0 12px 28px}
+  .stat-item{padding:12px 20px;min-width:80px}
+  .stat-item .num{font-size:1.4rem}
+}
+@media(max-width:480px){
+  .card-wrapper{height:380px}
+  .card-front{padding:18px}.card-back{padding:18px}
+  .card-name{font-size:1.05rem}
+  .card-pros-cons{flex-direction:column;gap:6px}
+  .card-pros-cons>div{font-size:0.74rem}
+  .filter-tag{font-size:0.76rem;padding:6px 12px}
+}
+
+footer{position:relative;z-index:1;text-align:center;padding:40px 20px;color:var(--text-secondary);font-size:0.8rem;border-top:1px solid var(--border)}
+footer a{color:var(--accent-3);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AI Agent 实力排行榜</h1>
+  <p class="subtitle">覆盖 2025–2026 年编程开发 · 商业产品 · 开源框架 · 国内平台四大领域，按综合实力排序，点击卡片翻转查看详细优劣分析</p>
+  <div class="badge-row"><span>📊 数据持续更新</span><span>📅 截至 2026.05</span><span>🧩 点击卡片翻转</span></div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="num" id="totalCount">32</div><div class="label">收录 Agent</div></div>
+  <div class="stat-item"><div class="num">4</div><div class="label">分类维度</div></div>
+  <div class="stat-item"><div class="num" id="topScore">9.4</div><div class="label">最高评分</div></div>
+</div>
+
+<div class="controls">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜索 Agent 名称、公司、关键词…">
+  </div>
+  <button class="sort-btn active" data-sort="rating">⭐ 按评分</button>
+  <button class="sort-btn" data-sort="name">🔤 按名称</button>
+</div>
+
+<div class="filters">
+  <button class="filter-tag active" data-cat="all">全部 <span class="count" id="cAll">32</span></button>
+  <button class="filter-tag" data-cat="coding">💻 编程开发 <span class="count" id="cCoding">8</span></button>
+  <button class="filter-tag" data-cat="product">🚀 商业产品 <span class="count" id="cProduct">8</span></button>
+  <button class="filter-tag" data-cat="opensource">🔓 开源框架 <span class="count" id="cOpensource">8</span></button>
+  <button class="filter-tag" data-cat="china">🇨🇳 国内平台 <span class="count" id="cChina">8</span></button>
+</div>
+
+<div class="grid" id="cardGrid"></div>
+
+<footer><p>基于实际使用体验与社区反馈综合评估 · 数据截至 2026.05 · 仅供选型参考</p></footer>
+
+<script>
+(function(){
+'use strict';
+
+var AGENTS = [
+  // ===== 编程开发 =====
+  {id:1,name:"Claude Code",org:"Anthropic",cats:["coding"],icon:"CC",iconBg:"linear-gradient(135deg,#d97706,#f59e0b)",score:9.4,stars:5,pros:["最强代码理解与重构能力","1M token 上下文窗口","Agent 自主循环 + 工具调用深度整合","幻觉率极低，玩梗克制","Sub-agent 并行任务分发"],cons:["仅 CLI 形态，无 IDE 集成","Pro 计划$200/月偏贵","Windows 端体验不如 Mac","不能自托管"],detail:"Anthropic 旗下旗舰编码 Agent。基于 Claude Opus/Sonnet 模型，支持 1M token 上下文、agent loop 自主规划执行、子代理并行分发。2026 年稳坐编程 Agent 头把交椅。",verdict:"当前综合最强的编程 Agent，适合追求代码质量与复杂重构的专业开发者。"},
+  {id:2,name:"Cursor",org:"Anysphere",cats:["coding"],icon:"CS",iconBg:"linear-gradient(135deg,#6366f1,#8b5cf6)",score:9.1,stars:5,pros:["VS Code 原生体验，上手成本低","Composer Agent 全项目编辑","Tab 补全速度极快","多模型切换 GPT/Claude/Gemini","Agent 模式持续进化"],cons:["免费额度有限，Pro $20/月","Agent 模型有时过度修改","大型项目偶有卡顿","闭源，核心逻辑不可审计"],detail:"基于 VS Code 深度改造的 AI IDE。Composer Agent 可跨文件规划修改，+ Tab 预测补全。2025 年完成 1 亿美元 B 轮融资，估值 26 亿美元。",verdict:"最顺手的 AI IDE，适合全天候编码的工程师。"},
+  {id:3,name:"Cline",org:"Cline 社区",cats:["coding"],icon:"CL",iconBg:"linear-gradient(135deg,#06b6d4,#0891b2)",score:8.9,stars:4,pros:["完全开源，MIT 协议","VS Code 插件即装即用","MCP 协议原生支持","自主规划、执行、验证闭环","社区活跃迭代快"],cons:["API 费用由用户自付 BYOK","大型任务 token 消耗高","无内置模型需外接","新手配置门槛略高"],detail:"2025 年最火的 VS Code 开源 Agent 插件。支持自主模式、MCP 工具生态、浏览器自动化。GitHub 40K+ stars。",verdict:"开源首选编程 Agent，适合有 API Key 的自主性开发者。"},
+  {id:4,name:"GitHub Copilot",org:"Microsoft/GitHub",cats:["coding"],icon:"GH",iconBg:"linear-gradient(135deg,#6e7681,#30363d)",score:8.7,stars:4,pros:["深度嵌入 GitHub 生态","Agent 模式支持多文件编辑","VS Code / JetBrains 全覆盖","Code Review 集成","企业级安全合规"],cons:["模型升级保守，创新慢","Agent 模式不如 Claude Code 灵活","补全偶尔重复或死循环","企业版价格偏高"],detail:"GitHub 原生 AI 编程助手。2025 年加入 Agent Mode，支持跨文件修改、Workspace 感知。",verdict:"企业团队最稳妥的选择，GitHub 生态深度用户首选。"},
+  {id:5,name:"Windsurf",org:"Codeium",cats:["coding"],icon:"WS",iconBg:"linear-gradient(180deg,#667eea,#764ba2)",score:8.5,stars:4,pros:["Cascade 流式 Agent 体验","Flow 状态保持上下文延续","价格友好 $10/月","补全速度快","内置多模型"],cons:["品牌改名后用户流失","Agent 稳定性偶有波动","生态不如 VS Code 丰富","大项目上下文管理一般"],detail:"原 Codeium 团队出品。Cascade Agent 主打心流体验，保持长上下文连贯性。",verdict:"性价比之选，适合个人开发者和中小团队。"},
+  {id:6,name:"Devin",org:"Cognition",cats:["coding"],icon:"DV",iconBg:"linear-gradient(135deg,#10b981,#059669)",score:8.2,stars:4,pros:["全自主开发非辅助模式","完整项目构建能力","自动调试与修复","异步工作模式","PR Review 自动化"],cons:["速度慢，简单任务也要等","$500/月价格极高","代码质量不稳定","仍频繁卡住需人工干预"],detail:"2024 年轰动一时的首个 AI 软件工程师。可独立完成 bug 修复、功能开发、PR 提交。",verdict:"自主开发先行者，适合简单明确的独立任务，复杂项目仍需人工把关。"},
+  {id:7,name:"Aider",org:"Aider 开源社区",cats:["coding"],icon:"AI",iconBg:"linear-gradient(135deg,#84cc16,#65a30d)",score:8.0,stars:4,pros:["纯 CLI，轻量极简","Git 自动 commit 管理","Map-Repo 全仓库感知","支持所有 LLM API","完全开源免费"],cons:["仅 CLI，无 GUI","学习曲线偏陡","大仓库 Map 速度慢","无官方企业支持"],detail:"开源 CLI 结对编程工具。首创 Git 自动提交 + 全仓库 Map 上下文。GitHub 28K+ stars。",verdict:"CLI 爱好者和极客的首选，轻量高效。"},
+  {id:8,name:"Codex CLI",org:"OpenAI",cats:["coding"],icon:"CX",iconBg:"linear-gradient(135deg,#00a67e,#007a5e)",score:7.8,stars:3,pros:["OpenAI 第一方工具","GPT-5 模型支持","开源 MIT 协议","沙箱执行安全"],cons:["推出晚，功能尚不完善","仅 CLI，无编辑器集成","Agent 循环不如 Claude Code 成熟","社区生态仍在建设"],detail:"OpenAI 2025 年推出的开源 CLI Agent。类似 Claude Code 定位，基于 GPT 模型生态。",verdict:"有潜力的新选手，OpenAI 生态用户可关注。"},
+
+  // ===== 商业产品 =====
+  {id:9,name:"ChatGPT Operator",org:"OpenAI",cats:["product"],icon:"OP",iconBg:"linear-gradient(135deg,#10a37f,#0d8a6a)",score:9.2,stars:5,pros:["浏览器自主操作能力","多模态输入截图+文字","Deep Research 深度调研","GPT-5 底层驱动","插件生态完善"],cons:["仅 $200/月 Pro 可用","浏览器操作有时卡住","速度较慢","中国地区访问困难"],detail:"ChatGPT 的浏览器 Agent。可自主操作网页、填表、订餐、调研。2025 年加入 Deep Research。",verdict:"最强通用 Agent，办公自动化 + 深度调研场景无敌。"},
+  {id:10,name:"Claude",org:"Anthropic",cats:["product"],icon:"CL",iconBg:"linear-gradient(135deg,#d97706,#b45309)",score:9.1,stars:5,pros:["Computer Use 屏幕操控","Artifacts 实时预览","代码执行 + 数据分析","1M 上下文会话","Project Knowledge 知识库"],cons:["Computer Use 仅 API 可用","无官方浏览器 Agent","Pro 计划 $200/月","文件上传限制 30MB"],detail:"Anthropic 旗舰 AI 助手。Computer Use 可操控桌面应用、Artifacts 实时生成可交互内容。",verdict:"深度思考 + 内容创作场景首选，Computer Use 开辟新自动化范式。"},
+  {id:11,name:"Manus",org:"蝴蝶效应 Manus AI",cats:["product"],icon:"MA",iconBg:"linear-gradient(135deg,#f97316,#ea580c)",score:8.7,stars:4,pros:["全自主任务执行非对话","支持 50+ 工具调用链","异步后台运行","任务成果可分享","浏览器 + 代码双引擎"],cons:["邀请制，名额有限","执行过程黑盒调试难","复杂任务有时偏离目标","生态封闭无法自定义工具"],detail:"2025 年初爆火的自主 Agent。输入自然语言任务描述，全程自主执行、交付成果。",verdict:"自主执行能力最接近真 Agent 的产品，但封闭生态限制定制性。"},
+  {id:12,name:"Perplexity",org:"Perplexity AI",cats:["product"],icon:"PP",iconBg:"linear-gradient(135deg,#2563eb,#1d4ed8)",score:8.5,stars:4,pros:["实时联网 + 深度搜索","来源引用可追溯","Pro Search 多步推理","Comet 浏览器 Agent","移动端体验优秀"],cons:["不具备代码执行能力","复杂任务不如 Operator","免费版功能阉割严重","中国内地需代理"],detail:"AI 搜索引擎 + Agent。Pro Search 可多步拆解问题自动搜索，2025 年推出 Comet 浏览器 Agent。",verdict:"信息检索 + 调研场景首选，引用可追溯是核心差异点。"},
+  {id:13,name:"Gemini",org:"Google DeepMind",cats:["product"],icon:"GE",iconBg:"linear-gradient(135deg,#4285f4,#7c4dff)",score:8.4,stars:4,pros:["2M token 超长上下文","Deep Research 深度报告","Gemini 3 Flash 免费快速","Google 全家桶深度集成","Gemma 开源模型家族"],cons:["创意写作不如 Claude","代码能力中等","Bard 时期口碑拖累","部分高级功能仅英文"],detail:"Google 全线 AI 品牌。2M token 上下文窗口业界最大，深度集成 Gmail/Docs/Calendar。",verdict:"Google 生态用户首选，超长上下文和 Deep Research 是独特优势。"},
+  {id:14,name:"Grok",org:"xAI - Elon Musk",cats:["product"],icon:"GK",iconBg:"linear-gradient(135deg,#000,#333)",score:7.9,stars:3,pros:["X 平台实时数据接入","风格幽默直接","图片生成质量高","免费层慷慨","Elon 自带流量加持"],cons:["Agent 能力尚弱","API 生态不成熟","企业功能缺失","内容审核宽松有争议"],detail:"Elon Musk 的 xAI 旗下 AI 助手。深度整合 X 平台，可实时抓取推文。",verdict:"X 平台重度用户的好选择，其他场景不如 Claude/GPT 成熟。"},
+  {id:15,name:"NotebookLM",org:"Google",cats:["product"],icon:"NB",iconBg:"linear-gradient(135deg,#c4b5fd,#a78bfa)",score:8.1,stars:4,pros:["上传文档即知识库","AI 播客生成双人对谈","来源锚定不跑偏","完全免费","论文研读神器"],cons:["仅限已有文档分析","不支持联网搜索","不能执行代码","无法处理非文本内容"],detail:"Google 的知识库 AI。上传 PDF/网页/笔记后 AI 仅基于这些内容回答，绝不跑偏。",verdict:"学术研读 + 知识管理的宝藏工具，免费且不跑偏。"},
+  {id:16,name:"Replit Agent",org:"Replit",cats:["product"],icon:"RP",iconBg:"linear-gradient(135deg,#f43f5e,#e11d48)",score:7.5,stars:3,pros:["自然语言即可构建 App","在线环境免配置","一键部署上线","适合非程序员原型开发"],cons:["复杂项目力不从心","生成的代码可维护性差","锁定 Replit 平台","收费后免费额度缩减"],detail:"Replit 内置的 AI 应用生成 Agent。用自然语言描述需求自动生成并部署 Web App。",verdict:"快速原型 + 非程序员友好的 App 生成器，生产级项目不适用。"},
+
+  // ===== 开源框架 =====
+  {id:17,name:"LangGraph",org:"LangChain",cats:["opensource"],icon:"LG",iconBg:"linear-gradient(135deg,#1c3c3c,#0d7377)",score:9.3,stars:5,pros:["图式 Agent 编排灵活度天花板","持久化状态 + 人工干预节点","流式输出原生支持","LangSmith 可观测性","生态成熟文档丰富"],cons:["学习曲线陡峭","抽象层多 debug 困难","v0.5 至 v1 迁移成本高","商业化后部分功能收费"],detail:"LangChain 出品的 Agent 编排框架。用有向图定义 Agent 工作流，支持条件分支、循环、人机协作。",verdict:"Agent 编排框架的事实标准，适合需要精细控制的复杂工作流。"},
+  {id:18,name:"CrewAI",org:"CrewAI",cats:["opensource"],icon:"CW",iconBg:"linear-gradient(135deg,#f97316,#c2410c)",score:8.8,stars:4,pros:["多 Agent 角色分工概念直观","上手快 15 分钟跑通","社区模板丰富","Flows 任务流 2025 新特性","企业版有 GUI 管理面板"],cons:["角色定义偏模板化","底层仍是 LLM 调用非真智能","复杂场景调试困难","token 消耗不可控"],detail:"多 Agent 协作框架。定义 CEO、研究员、写手等角色并自动协作。GitHub 25K+ stars。",verdict:"多 Agent 协作入门最佳选择，概念直观、开发体验好。"},
+  {id:19,name:"AutoGen",org:"Microsoft",cats:["opensource"],icon:"AG",iconBg:"linear-gradient(135deg,#0078d4,#005a9e)",score:8.6,stars:4,pros:["Microsoft 背书企业级可靠","对话式多 Agent 交互","代码生成 + 执行循环","可扩展性强","Magentic-One 参考实现"],cons:["v0.4 大重构文档脱节","社区活跃度下降","被 LangGraph 抢了风头","微软内部优先级不明"],detail:"Microsoft Research 的多 Agent 框架。v0.4 大重构后更名为 AutoGen Core。",verdict:"企业微软生态首选，但社区势头已被 LangGraph 超越。"},
+  {id:20,name:"Dify",org:"LangGenius",cats:["opensource"],icon:"DF",iconBg:"linear-gradient(135deg,#6366f1,#4338ca)",score:8.8,stars:4,pros:["可视化 AI 应用构建","拖拽式工作流编排","RAG 管道开箱即用","自托管 + 云版双模式","中文生态极好"],cons:["复杂 Agent 编排不如 LangGraph","社区版功能受限","插件生态仍在建设","大并发性能待优化"],detail:"国内开源的低代码 AI 应用平台。可视化搭建 Agent + RAG + Workflow。GitHub 70K+ stars。",verdict:"可视化 AI 应用搭建的最佳选择，特别适合中文场景和快速原型。"},
+  {id:21,name:"n8n",org:"n8n GmbH",cats:["opensource"],icon:"N8",iconBg:"linear-gradient(135deg,#ea4c1b,#b83817)",score:8.3,stars:4,pros:["成熟的工作流自动化","400+ 集成节点","AI Agent 节点 2025 年加入","自托管免费","Fair-Code 可持续开源"],cons:["AI 功能是新加入的","非 AI 原生设计","复杂 Agent 逻辑实现别扭","高并发需付费企业版"],detail:"开源工作流自动化平台。2025 年加入 AI Agent 节点，可将 LLM 决策嵌入自动化流程。",verdict:"工作流自动化 + AI Agent 结合的不错选择，特别适合已有 n8n 用户。"},
+  {id:22,name:"AutoGPT",org:"AutoGPT 社区",cats:["opensource"],icon:"AU",iconBg:"linear-gradient(135deg,#7c3aed,#6d28d9)",score:7.5,stars:3,pros:["自主 Agent 鼻祖有历史意义","GitHub 170K+ stars","可视化构建器","社区模板库庞大"],cons:["自主循环经常失控","token 消耗巨大","实用性不如新框架","发展重心不明"],detail:"2023 年引爆 AI Agent 热潮的开创者。2025 年转型为可视化 Agent 构建平台。",verdict:"Agent 历史的重要里程碑，但当前实用价值不如 LangGraph/CrewAI。"},
+  {id:23,name:"MetaGPT",org:"DeepWisdom",cats:["opensource"],icon:"MG",iconBg:"linear-gradient(135deg,#a855f7,#7c3aed)",score:7.8,stars:4,pros:["软件公司 SOP 驱动 Agent","需求至代码完整流水线","多角色协作有工程感","论文级技术方案","GitHub 50K+ stars"],cons:["生成代码质量有限","实际落地不如 Demo 好","非一线程序员场景不实用","维护更新放缓"],detail:"用软件公司的标准作业流程驱动 AI Agent 协作。产品经理至架构师至工程师模拟。",verdict:"概念领先但落地有差距，适合学术研究和 Agent 架构参考。"},
+  {id:24,name:"Swarm",org:"OpenAI",cats:["opensource"],icon:"SW",iconBg:"linear-gradient(135deg,#00a67e,#007a5e)",score:7.2,stars:3,pros:["OpenAI 官方出品","极简 Agent 切换模式","代码量少易理解","学习 Agent 概念的好教材"],cons:["实验性质非生产可用","功能极其有限","不再积极维护","无状态管理或持久化"],detail:"OpenAI 的极简 Agent 实验框架。仅展示 Agent 间切换 + 工具调用的核心概念。",verdict:"Agent 教学框架，不建议用于生产，但代码值得一读。"},
+
+  // ===== 国内平台 =====
+  {id:25,name:"DeepSeek",org:"深度求索",cats:["china"],icon:"DS",iconBg:"linear-gradient(135deg,#3b82f6,#1d4ed8)",score:9.4,stars:5,pros:["R1 推理能力全球顶尖","API 价格仅 GPT 十分之一","完全开源 MIT 协议","中文理解国内最强","Coder V3 编程能力突出"],cons:["高峰期 API 卡顿","无 Agent 框架仅有模型","安全性审查可能影响输出","海外知名度不如 GPT"],detail:"2025 年中国 AI 最亮眼的明星。DeepSeek-R1 推理模型全球震动，V3 基座与 GPT-4o 正面竞争。",verdict:"国内首选模型底座，开源 + 低价 + 强能力，Agent 开发首选后端模型。"},
+  {id:26,name:"通义千问 Qwen",org:"阿里云",cats:["china"],icon:"QW",iconBg:"linear-gradient(135deg,#ff6a00,#ee5a00)",score:9.0,stars:5,pros:["Qwen3-235B 开源最强之一","100+ 语言多语言支持","阿里云无缝部署","百炼平台 Agent 构建","模型体系完整 0.5B 至 235B"],cons:["百炼平台体验不够流畅","开源版本与闭源有差距","API 文档英文版欠完善","生态工具不如海外"],detail:"阿里自研大模型。Qwen3 系列从 0.5B 到 235B 全覆盖，开源版性能全球领先。",verdict:"阿里云用户首选，模型体系最完整，开源生态最好。"},
+  {id:27,name:"智谱清言 GLM",org:"智谱 AI",cats:["china"],icon:"GM",iconBg:"linear-gradient(135deg,#2563eb,#1e40af)",score:8.6,stars:4,pros:["GLM-4 系列能力均衡","AutoGLM 手机 Agent 独特","学术出身技术底蕴扎实","企业私有化部署成熟","API 稳定性好"],cons:["C 端产品体验一般","市场声量不如字节/阿里","Agent 框架 AutoGLM 仍早期","开源版和企业版差异大"],detail:"清华系大模型公司。GLM-4 系列性能全面，AutoGLM 可操控手机 App 完成复杂任务。",verdict:"企业私有化部署首选，AutoGLM 手机 Agent 是独特亮点。"},
+  {id:28,name:"豆包 / Coze",org:"字节跳动",cats:["china"],icon:"DB",iconBg:"linear-gradient(135deg,#f97316,#ea580c)",score:8.5,stars:4,pros:["Coze 低代码 Agent 搭建最强","插件/Bot/工作流生态极丰富","豆包 C 端日活千万级","火山引擎企业版","多平台发布抖音飞书微信"],cons:["底层模型不如 DeepSeek/Qwen","强绑定字节生态","Coze 海外版与国内隔离","复杂 Agent 定制受限"],detail:"字节跳动 AI 双品牌。豆包定位 C 端全能助手，Coze 定位低代码 Agent 构建平台。",verdict:"国内 Agent 构建平台最成熟的选择，Coze 低代码体验一流。"},
+  {id:29,name:"文心一言 ERNIE",org:"百度",cats:["china"],icon:"WX",iconBg:"linear-gradient(135deg,#2932e1,#1a24b8)",score:8.1,stars:4,pros:["百度搜索生态深度整合","ERNIE 5 推理大幅提升","千帆平台 Agent 工具链","中文知识图谱独特优势","免费额度慷慨"],cons:["代码能力弱于竞品","C 端用户增速放缓","百度品牌口碑拖累","模型开源力度不足"],detail:"百度旗舰大模型。ERNIE 系列持续迭代至第 5 代。千帆平台提供全栈 AI 服务。",verdict:"百度生态用户首选，千帆企业平台功能完善。"},
+  {id:30,name:"Kimi",org:"月之暗面 Moonshot AI",cats:["china"],icon:"KM",iconBg:"linear-gradient(135deg,#8b5cf6,#7c3aed)",score:8.3,stars:4,pros:["超长上下文国内领先 200K+","长文档理解 + 分析极强","Kimi+ Agent 商店生态","界面设计精致好上手","C 端用户口碑好"],cons:["Agent 功能仍较基础","模型深度推理不如 DeepSeek","API 定价中等偏上","企业级功能不完善"],detail:"月之暗面出品。以超长上下文处理能力著称，长文档分析和总结能力一流。",verdict:"长文档处理场景首选，产品设计最精致的国内 AI 助手。"},
+  {id:31,name:"腾讯元宝",org:"腾讯",cats:["china"],icon:"TX",iconBg:"linear-gradient(135deg,#00a6ff,#0078d6)",score:7.8,stars:3,pros:["微信生态深度整合","腾讯文档/会议集成","混元大模型持续迭代","企业微信 Agent 场景","游戏/社交场景独特"],cons:["推出较晚品牌认知弱","模型能力第一梯队末位","Agent 平台功能有限","开源力度不够"],detail:"腾讯旗下 AI 助手。依托微信生态优势，集成腾讯文档、腾讯会议。",verdict:"微信/企微生态用户值得关注，但 Agent 能力仍需追赶。"},
+  {id:32,name:"百川智能",org:"Baichuan AI",cats:["china"],icon:"BC",iconBg:"linear-gradient(135deg,#14b8a6,#0d9488)",score:7.5,stars:3,pros:["医疗垂直领域深耕","百小应 AI 健康助手","开源模型持续贡献","王小川技术品牌背书","医疗专业度国内领先"],cons:["通用能力弱于竞品","C 端产品知名度低","Agent 生态不完善","融资节奏偏慢"],detail:"搜狗创始人王小川创办。聚焦医疗健康赛道，专业度国内领先。",verdict:"医疗健康垂直领域的专业选择，通用场景不如 DeepSeek/Kimi。"}
+];
+
+var C = {
+  coding:  'cat-coding',
+  product: 'cat-product',
+  opensource: 'cat-opensource',
+  china: 'cat-china'
+};
+var CN = {
+  coding:'编程开发', product:'商业产品', opensource:'开源框架', china:'国内平台'
+};
+
+function stars(n){ var s=''; for(var i=0;i<5;i++) s+= i<n ? '★' : '☆'; return s; }
+
+var grid = document.getElementById('cardGrid');
+var currentFilter = 'all';
+var currentSort = 'rating';
+
+// ===== BUILD CARDS =====
+function buildCards(data){
+  grid.innerHTML = '';
+  for(var i = 0; i < data.length; i++){
+    var a = data[i];
+    var topClass = (currentSort==='rating' && i<3) ? ' top-'+(i+1) : '';
+    var topBadge = (currentSort==='rating' && i<3) ? '<div class="top-badge"><span>TOP'+(i+1)+'</span></div>' : '';
+    var tagHtml = '';
+    for(var j = 0; j < a.cats.length; j++){
+      var c = a.cats[j];
+      tagHtml += '<span class="card-tag '+C[c]+'">'+CN[c]+'</span>';
+    }
+    // Pro list (truncated to 3 for front)
+    var proHtml = '', conHtml = '', proFull = '', conFull = '';
+    for(var k = 0; k < a.pros.length && k < 3; k++) proHtml += '<li>'+a.pros[k]+'</li>';
+    for(var k = 0; k < a.cons.length && k < 3; k++) conHtml += '<li>'+a.cons[k]+'</li>';
+    for(var k = 0; k < a.pros.length; k++) proFull += '<li>'+a.pros[k]+'</li>';
+    for(var k = 0; k < a.cons.length; k++) conFull += '<li>'+a.cons[k]+'</li>';
+
+    var w = document.createElement('div');
+    w.className = 'card-wrapper'+topClass;
+    w.setAttribute('data-cats', a.cats.join(','));
+    w.setAttribute('data-name', a.name.toLowerCase());
+    w.setAttribute('data-org', a.org.toLowerCase());
+    w.setAttribute('data-rating', a.score);
+    w.setAttribute('data-stars', a.stars);
+
+    w.innerHTML =
+'<div class="card">'+
+  topBadge+
+  '<div class="card-face card-front">'+
+    '<div class="flip-indicator">&#8635;</div>'+
+    '<div class="card-header">'+
+      '<div class="card-icon" style="background:'+a.iconBg+'">'+a.icon+'</div>'+
+      '<div class="card-rank">#'+(i+1)+' &middot; '+stars(a.stars)+'</div>'+
+    '</div>'+
+    '<div class="card-name">'+a.name+'</div>'+
+    '<div class="card-org">'+a.org+'</div>'+
+    '<div class="card-tags">'+tagHtml+'</div>'+
+    '<div class="card-pros-cons">'+
+      '<div class="pros"><h4>优点</h4><ul>'+proHtml+'</ul></div>'+
+      '<div class="cons"><h4>缺点</h4><ul>'+conHtml+'</ul></div>'+
+    '</div>'+
+    '<div class="card-rating">'+
+      '<span class="card-score">'+a.score+'</span>'+
+      '<span class="card-score-label">/ 10</span>'+
+      '<span class="card-stars">'+stars(a.stars)+'</span>'+
+      '<span class="card-hint">点击翻转看详情</span>'+
+    '</div>'+
+  '</div>'+
+  '<div class="card-face card-back">'+
+    '<h3>'+a.name+' 深度分析</h3>'+
+    '<div class="back-section"><h4><span class="dot blue"></span>概述</h4><p style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6">'+a.detail+'</p></div>'+
+    '<div class="back-section"><h4><span class="dot green"></span>全部优点</h4><ul>'+proFull+'</ul></div>'+
+    '<div class="back-section"><h4><span class="dot red"></span>全部缺点</h4><ul>'+conFull+'</ul></div>'+
+    '<div class="back-verdict"><strong>一句话总结：</strong>'+a.verdict+'</div>'+
+    '<div class="card-flip-hint">点击翻转回正面</div>'+
+  '</div>'+
+'</div>';
+
+    grid.appendChild(w);
+  }
+  updateCounts(data);
+}
+
+// ===== DELETE GATE (event delegation) =====
+grid.addEventListener('click', function(e){
+  var card = e.target.closest('.card');
+  if(!card) return;
+  e.stopPropagation();
+  card.classList.toggle('flipped');
+});
+
+// ===== FILTER =====
+function setFilter(cat, btn){
+  currentFilter = cat;
+  var tags = document.querySelectorAll('.filter-tag');
+  for(var i=0;i<tags.length;i++) tags[i].classList.remove('active');
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  var query = (document.getElementById('searchInput').value || '').toLowerCase();
+  var cards = document.querySelectorAll('.card-wrapper');
+  var visible = 0;
+
+  for(var i = 0; i < cards.length; i++){
+    var w = cards[i];
+    var cardEl = w.querySelector('.card');
+    if(cardEl) cardEl.classList.remove('flipped');
+
+    var cats = w.getAttribute('data-cats').split(',');
+    var name = w.getAttribute('data-name');
+    var org = w.getAttribute('data-org');
+    var matchCat = currentFilter === 'all' || cats.indexOf(currentFilter) >= 0;
+    var matchSearch = !query || name.indexOf(query) >= 0 || org.indexOf(query) >= 0;
+
+    if(matchCat && matchSearch){
+      w.classList.remove('hidden');
+      visible++;
+      w.style.animationDelay = ((visible-1)*0.04)+'s';
+    } else {
+      w.classList.add('hidden');
+    }
+  }
+
+  // Re-rank visible
+  var visibleWrappers = document.querySelectorAll('.card-wrapper:not(.hidden)');
+  for(var j = 0; j < visibleWrappers.length; j++){
+    var vw = visibleWrappers[j];
+    var st = parseInt(vw.getAttribute('data-stars')) || 3;
+    var rankEl = vw.querySelector('.card-rank');
+    if(rankEl) rankEl.innerHTML = '#'+(j+1)+' &middot; '+stars(st);
+
+    var badge = vw.querySelector('.top-badge');
+    if(badge) badge.parentNode.removeChild(badge);
+    vw.classList.remove('top-1','top-2','top-3');
+
+    if(currentSort==='rating' && j<3){
+      vw.classList.add('top-'+(j+1));
+      var newBadge = document.createElement('div');
+      newBadge.className = 'top-badge';
+      newBadge.innerHTML = '<span>TOP'+(j+1)+'</span>';
+      var card = vw.querySelector('.card');
+      if(card) card.appendChild(newBadge);
+    }
+  }
+
+  document.getElementById('totalCount').textContent = visible;
+}
+
+// ===== SORT =====
+function sortBy(type){
+  currentSort = type;
+  var btns = document.querySelectorAll('.sort-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  var activeBtn = document.querySelector('.sort-btn[data-sort="'+type+'"]');
+  if(activeBtn) activeBtn.classList.add('active');
+
+  var wrappers = [];
+  var allW = document.querySelectorAll('#cardGrid .card-wrapper');
+  for(var j=0;j<allW.length;j++) wrappers.push(allW[j]);
+
+  wrappers.sort(function(a,b){
+    if(type==='rating') return parseFloat(b.getAttribute('data-rating')) - parseFloat(a.getAttribute('data-rating'));
+    return (a.getAttribute('data-name')||'').localeCompare(b.getAttribute('data-name')||'');
+  });
+
+  for(var k=0;k<wrappers.length;k++){
+    var w = wrappers[k];
+    w.classList.remove('top-1','top-2','top-3');
+    var badge = w.querySelector('.top-badge');
+    if(badge) badge.parentNode.removeChild(badge);
+    grid.appendChild(w);
+  }
+
+  // Re-rank
+  var vis = document.querySelectorAll('#cardGrid .card-wrapper:not(.hidden)');
+  for(var m=0;m<vis.length;m++){
+    var vw = vis[m];
+    var st = parseInt(vw.getAttribute('data-stars')) || 3;
+    var rankEl = vw.querySelector('.card-rank');
+    if(rankEl) rankEl.innerHTML = '#'+(m+1)+' &middot; '+stars(st);
+    if(type==='rating' && m<3){
+      vw.classList.add('top-'+(m+1));
+      var newBadge = document.createElement('div');
+      newBadge.className = 'top-badge';
+      newBadge.innerHTML = '<span>TOP'+(m+1)+'</span>';
+      var card = vw.querySelector('.card');
+      if(card) card.appendChild(newBadge);
+    }
+  }
+}
+
+function updateCounts(data){
+  var d = data || AGENTS;
+  function cnt(cat){ var n=0;for(var i=0;i<d.length;i++){if(d[i].cats.indexOf(cat)>=0)n++;} return n; }
+  document.getElementById('cAll').textContent = d.length;
+  document.getElementById('cCoding').textContent = cnt('coding');
+  document.getElementById('cProduct').textContent = cnt('product');
+  document.getElementById('cOpensource').textContent = cnt('opensource');
+  document.getElementById('cChina').textContent = cnt('china');
+}
+
+// ===== BIND CONTROLS =====
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+var filterBtns = document.querySelectorAll('.filter-tag');
+for(var i=0;i<filterBtns.length;i++){
+  (function(btn){
+    btn.addEventListener('click', function(){
+      setFilter(btn.getAttribute('data-cat'), btn);
+    });
+  })(filterBtns[i]);
+}
+
+var sortBtns = document.querySelectorAll('.sort-btn');
+for(var j=0;j<sortBtns.length;j++){
+  (function(btn){
+    btn.addEventListener('click', function(){
+      sortBy(btn.getAttribute('data-sort'));
+    });
+  })(sortBtns[j]);
+}
+
+// ===== INIT =====
+var sorted = AGENTS.slice().sort(function(a,b){ return b.score - a.score; });
+buildCards(sorted);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(gh repo *)",
+      "Bash(git clone *)",
+      "Bash(cmd *)",
+      "Bash(cp *)",
+      "Bash(cp -r \"D:/star agent/.claude/skills/academic-research-skills/commands/\" \"D:/star agent/.claude/commands/\")",
+      "Bash(cp -r \"D:/star agent/.claude/skills/academic-research-skills/agents/\" \"D:/star agent/.claude/agents/\")",
+      "WebFetch(domain:skillsmp.com)",
+      "WebSearch",
+      "Bash(curl -sL \"https://skillsmp.com/skills/affaan-m-everything-claude-code-agents-skills-content-engine-skill-md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/affaan-m/everything-claude-code/main/skills/content-engine/SKILL.md\")",
+      "Bash(curl *)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(GIT_SSH_COMMAND=\"ssh -o StrictHostKeyChecking=no\" gh repo create ai-agent-leaderboard --source=. --public --remote=origin --push)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "WebFetch(domain:hoshiwx.github.io)",
+      "Bash(cd *)"
+    ]
+  }
+}
